@@ -4,17 +4,63 @@ import { ANYA_CORE_PROTOCOL } from './prompts';
 
 // --- INITIALIZATION ---
 export const getAI = () => {
-    let key = process.env.API_KEY || process.env.GEMINI_API_KEY;
+    let customKey = '';
     try {
-        const customKey = localStorage.getItem('custom_gemini_api_key');
-        if (customKey && customKey.trim().length > 0) {
-            key = customKey.trim();
+        const storedKey = localStorage.getItem('custom_gemini_api_key');
+        if (storedKey && storedKey.trim().length > 0) {
+            customKey = storedKey.trim();
         }
     } catch (e) {
         console.error("Failed to read custom API key", e);
     }
-    console.log("Using API Key:", process.env.API_KEY ? "User Key" : "Platform Key", "(Custom Key Overridden: " + !!localStorage.getItem('custom_gemini_api_key') + ")");
-    return new GoogleGenAI({ apiKey: key });
+    
+    // Create a mock GoogleGenAI client that routes through our Express backend
+    return {
+        models: {
+            generateContent: async (params: any) => {
+                const response = await fetch('/api/gemini/generateContent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: params.model,
+                        contents: params.contents,
+                        config: params.config,
+                        customApiKey: customKey
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    const errorObj: any = new Error(errorData.error || `HTTP ${response.status}`);
+                    errorObj.status = response.status;
+                    throw errorObj;
+                }
+                
+                return await response.json();
+            },
+            generateImages: async (params: any) => {
+                const response = await fetch('/api/gemini/generateImages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: params.model,
+                        prompt: params.prompt,
+                        config: params.config,
+                        customApiKey: customKey
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    const errorObj: any = new Error(errorData.error || `HTTP ${response.status}`);
+                    errorObj.status = response.status;
+                    throw errorObj;
+                }
+                
+                return await response.json();
+            }
+        }
+    };
 };
 
 // --- HELPERS ---
@@ -193,7 +239,7 @@ const WOLF_RHYTHM_PROTOCOL = `
 const handleApiError = (e: any) => {
     console.error("Gemini API Error:", e);
     const errMsg = e instanceof Error ? e.message : String(e);
-    if (errMsg.includes("Requested entity was not found") || errMsg.includes("API_KEY_INVALID") || errMsg.includes("API key not valid")) {
+    if (errMsg.includes("Requested entity was not found") || errMsg.includes("API_KEY_INVALID") || errMsg.includes("API key not valid") || e.status === 401 || errMsg.includes("No API key")) {
         window.dispatchEvent(new CustomEvent('reset-api-key'));
     }
     throw e;
@@ -201,38 +247,30 @@ const handleApiError = (e: any) => {
 
 export const generateWaifuAvatar = async (profile: WaifuProfile, referenceImage?: string): Promise<string | null> => {
     const ai = getAI();
-    const model = getModelConfig('waifu_model_image', 'gemini-2.5-flash-image');
+    let model = getModelConfig('waifu_model_image', 'imagen-4.0-generate-001');
+    
+    // Fallbacks
+    if (model.includes('flash') || model.includes('pro')) {
+        model = 'imagen-4.0-generate-001';
+    }
     
     const prompt = `Generate a cinematic, atmospheric portrait of a character named ${profile.name}. 
     Appearance: ${profile.appearance}. 
-    Style: Cyberpunk / Sci-Fi / High Fidelity. 
-    ${referenceImage ? "Use the attached image as a reference for facial structure/identity." : ""}`;
-
-    const parts: any[] = [{ text: prompt }];
-    if (referenceImage) {
-        parts.push({
-            inlineData: {
-                mimeType: 'image/png', 
-                data: referenceImage
-            }
-        });
-    }
+    Style: Cyberpunk / Sci-Fi / High Fidelity.`;
 
     try {
-        const response = await ai.models.generateContent({
+        const response = await ai.models.generateImages({
             model: model,
-            contents: { parts }
+            prompt: prompt,
+            config: {
+                outputMimeType: 'image/jpeg',
+                aspectRatio: '1:1'
+            }
         });
 
-        // Find image in response candidates
-        for (const cand of response.candidates || []) {
-            if (cand.content?.parts) {
-                for (const part of cand.content.parts) {
-                    if (part.inlineData && part.inlineData.data) {
-                         return `data:${part.inlineData.mimeType || 'image/png'};base64,${part.inlineData.data}`;
-                    }
-                }
-            }
+        if (response.generatedImages && response.generatedImages.length > 0) {
+             const base64 = response.generatedImages[0].image.imageBytes;
+             return `data:image/jpeg;base64,${base64}`;
         }
         return null;
     } catch (e) {
@@ -250,7 +288,7 @@ export const chatWithWaifu = async (
     gameContext: string
 ): Promise<string> => {
     const ai = getAI();
-    const model = getModelConfig('waifu_model_chat', 'gemini-3-flash-preview');
+    const model = getModelConfig('waifu_model_chat', 'gemini-1.5-pro');
     
     // Construct System Instruction
     let sys = ANYA_CORE_PROTOCOL;
@@ -418,7 +456,7 @@ export const updateChronicle = async (lastUserMsg: string, lastAiMsg: string): P
     
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-3-flash-preview",
+            model: "gemini-1.5-flash",
             contents: prompt
         });
         const txt = response.text?.trim();
@@ -447,7 +485,7 @@ export const summarizeChatHistory = async (messages: Message[]): Promise<string 
     
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-3-flash-preview",
+            model: "gemini-1.5-flash",
             contents: prompt
         });
         const txt = response.text?.trim();
@@ -460,7 +498,7 @@ export const summarizeChatHistory = async (messages: Message[]): Promise<string 
 };
 
 // HARDCODED CONSTANT to prevent RPG mode using Pro tier
-const GAME_MODEL = "gemini-3-flash-preview";
+const GAME_MODEL = "gemini-1.5-pro";
 
 export const generateAdventureTurn = async (
     historyContext: string,
@@ -562,24 +600,28 @@ export const generateAdventureTurn = async (
 
 export const generateSceneImage = async (description: string, isCombat: boolean): Promise<string | null> => {
     const ai = getAI();
-    const model = getModelConfig('waifu_model_image', 'gemini-2.5-flash-image');
+    let model = getModelConfig('waifu_model_image', 'imagen-4.0-generate-001');
+    
+    // Fallbacks
+    if (model.includes('flash') || model.includes('pro')) {
+        model = 'imagen-4.0-generate-001';
+    }
     
     const prompt = `Cyberpunk wasteland scene, atmospheric, cinematic, high fidelity. ${isCombat ? "Action scene, combat, dynamic angles." : "Exploration, atmospheric, quiet."} Scene description: ${description}`;
 
     try {
-        const response = await ai.models.generateContent({
+        const response = await ai.models.generateImages({
             model: model,
-            contents: prompt
+            prompt: prompt,
+            config: {
+                outputMimeType: 'image/jpeg',
+                aspectRatio: '16:9'
+            }
         });
 
-        for (const cand of response.candidates || []) {
-            if (cand.content?.parts) {
-                for (const part of cand.content.parts) {
-                    if (part.inlineData && part.inlineData.data) {
-                         return `data:${part.inlineData.mimeType || 'image/png'};base64,${part.inlineData.data}`;
-                    }
-                }
-            }
+        if (response.generatedImages && response.generatedImages.length > 0) {
+             const base64 = response.generatedImages[0].image.imageBytes;
+             return `data:image/jpeg;base64,${base64}`;
         }
         return null;
     } catch (e) {
