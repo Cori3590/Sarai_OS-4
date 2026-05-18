@@ -247,12 +247,7 @@ const handleApiError = (e: any) => {
 
 export const generateWaifuAvatar = async (profile: WaifuProfile, referenceImage?: string): Promise<string | null> => {
     const ai = getAI();
-    let model = getModelConfig('waifu_model_image', 'imagen-4.0-generate-001');
-    
-    // Fallbacks
-    if (model.includes('flash') || model.includes('pro')) {
-        model = 'imagen-4.0-generate-001';
-    }
+    let model = getModelConfig('waifu_model_image', 'gemini-1.5-pro');
     
     const prompt = `Generate a cinematic, atmospheric portrait of a character named ${profile.name}. 
     Appearance: ${profile.appearance}. 
@@ -275,7 +270,7 @@ export const generateWaifuAvatar = async (profile: WaifuProfile, referenceImage?
         return null;
     } catch (e) {
         handleApiError(e);
-        return null; // This will actually not be reached if handleApiError throws, but typescript needs it or we can just let it throw
+        return null;
     }
 };
 
@@ -600,12 +595,7 @@ export const generateAdventureTurn = async (
 
 export const generateSceneImage = async (description: string, isCombat: boolean): Promise<string | null> => {
     const ai = getAI();
-    let model = getModelConfig('waifu_model_image', 'imagen-4.0-generate-001');
-    
-    // Fallbacks
-    if (model.includes('flash') || model.includes('pro')) {
-        model = 'imagen-4.0-generate-001';
-    }
+    let model = getModelConfig('waifu_model_image', 'gemini-1.5-pro');
     
     const prompt = `Cyberpunk wasteland scene, atmospheric, cinematic, high fidelity. ${isCombat ? "Action scene, combat, dynamic angles." : "Exploration, atmospheric, quiet."} Scene description: ${description}`;
 

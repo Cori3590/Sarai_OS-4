@@ -155,17 +155,17 @@ export const ConfigModal: React.FC<Props> = ({ profile, onSave, onClose, onReset
                             <div>
                                 <label className="block text-[10px] text-cyan-600 mb-1">CHAT MODEL (Brain)</label>
                                 <select value={chatModel} onChange={(e) => setChatModel(e.target.value)} className="w-full bg-black border border-cyan-700 text-cyan-400 p-2 text-base">
-                                    <option value="gemini-2.5-pro">GEMINI 3.1 PRO (Advanced)</option>
-                                    <option value="gemini-1.5-pro">GEMINI 3 PRO (Expensive/Smart)</option>
-                                    <option value="gemini-1.5-flash">GEMINI 3 FLASH (Cheap/Fast)</option>
-                                    <option value="gemini-2.5-flash">GEMINI 3.1 FLASH LITE (Fastest)</option>
+                                    <option value="gemini-2.0-flash-exp">GEMINI 2.0 FLASH (Newest)</option>
+                                    <option value="gemini-1.5-pro">GEMINI 1.5 PRO (Advanced)</option>
+                                    <option value="gemini-1.5-flash">GEMINI 1.5 FLASH (Fast)</option>
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-[10px] text-cyan-600 mb-1">IMAGE MODEL (Eyes)</label>
                                 <select value={imageModel} onChange={(e) => setImageModel(e.target.value)} className="w-full bg-black border border-cyan-700 text-cyan-400 p-2 text-base">
-                                    <option value="imagen-4.0-generate-001">IMAGEN 4 GENERATE (High Quality)</option>
-                                    <option value="imagen-3.0-fast-generate-001">IMAGEN 3 FAST (Fast)</option>
+                                    <option value="gemini-2.0-flash-exp">GEMINI 2.0 FLASH (AI Vision)</option>
+                                    <option value="gemini-1.5-pro">GEMINI 1.5 PRO (High Fidelity)</option>
+                                    <option value="gemini-1.5-flash">GEMINI 1.5 FLASH (Fast)</option>
                                 </select>
                             </div>
                             <div>

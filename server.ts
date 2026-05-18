@@ -24,10 +24,11 @@ async function startServer() {
             return res.status(401).json({ error: "No API key configured." });
         }
         
-        if (model === 'gemini-3.1-pro-preview') model = 'gemini-2.5-pro';
-        if (model === 'gemini-3-pro-preview') model = 'gemini-1.5-pro';
-        if (model === 'gemini-3-flash-preview') model = 'gemini-1.5-flash';
-        if (model === 'gemini-3.1-flash-lite-preview') model = 'gemini-2.5-flash';
+        if (model === 'gemini-2.0-flash-exp') model = 'gemini-2.0-flash-exp';
+        if (model === 'gemini-1.5-pro') model = 'gemini-1.5-pro';
+        if (model === 'gemini-1.5-flash') model = 'gemini-1.5-flash';
+        if (model === 'gemini-2.5-pro') model = 'gemini-1.5-pro';
+        if (model === 'gemini-2.5-flash') model = 'gemini-1.5-flash';
 
         const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateContent({
@@ -56,14 +57,15 @@ async function startServer() {
             return res.status(401).json({ error: "No API key configured." });
         }
         
-        if (model === 'gemini-3.1-flash-image-preview') model = 'imagen-4.0-generate-001';
-        if (model === 'gemini-2.5-flash-image') model = 'imagen-4.0-generate-001';
-        if (model === 'gemini-3-pro-image-preview') model = 'imagen-4.0-generate-001';
-        if (model === 'gemini-1.5-pro') model = 'imagen-4.0-generate-001'; // fallback
-
+        // Gemini doesn't directly generate images in standard generateImages call yet. 
+        // We map Gemini choices to the most compatible Imagen model internally.
+        // If the user selects a Gemini model for images, they expect Gemini branding.
+        let targetModel = 'imagen-3.0-generate-001';
+        if (model && model.includes('flash')) targetModel = 'imagen-3.0-fast-generate-001';
+        
         const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateImages({
-            model: model || 'imagen-4.0-generate-001',
+            model: targetModel,
             prompt,
             config
         });
