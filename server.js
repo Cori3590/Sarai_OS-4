@@ -15,7 +15,7 @@ const staticPath = path.join(__dirname, 'dist');
 app.use(express.static(staticPath));
 
 // Fallback to index.html for SPA routing
-app.get('*', (req, res) => {
+app.get('*all', (req, res) => {
   res.sendFile(path.join(staticPath, 'index.html'), (err) => {
     if (err) {
       res.status(500).send(err);
