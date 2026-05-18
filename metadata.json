@@ -1,0 +1,7 @@
+{
+  "name": "Remix: Sarai_OS 3.1- direct link ",
+  "description": "Create and interact with your own AI-powered anime companion featuring high-quality image generation, voice synthesis, and dynamic personality traits.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
