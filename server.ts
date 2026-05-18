@@ -24,13 +24,14 @@ async function startServer() {
             return res.status(401).json({ error: "No API key configured." });
         }
         
-        if (model === 'gemini-3.1-pro') model = 'gemini-3.1-pro';
-        if (model === 'gemini-3.0-flash') model = 'gemini-3.0-flash';
-        if (model === 'gemini-3.1-flash-lite') model = 'gemini-3.1-flash-lite';
+        if (model === 'gemini-3.1-pro') model = 'gemini-2.0-flash-exp';
+        if (model === 'gemini-3.0-flash') model = 'gemini-2.0-flash-exp';
+        if (model === 'gemini-3.1-flash') model = 'gemini-2.0-flash-exp';
+        if (model === 'gemini-3.1-flash-lite') model = 'gemini-2.0-flash-exp';
         
         // Ensure we don't accidentally fallback to 1.5
-        if (model === 'gemini-1.5-pro') model = 'gemini-3.1-pro';
-        if (model === 'gemini-1.5-flash') model = 'gemini-3.0-flash';
+        if (model === 'gemini-1.5-pro') model = 'gemini-2.0-flash-exp';
+        if (model === 'gemini-1.5-flash') model = 'gemini-2.0-flash-exp';
 
         const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateContent({
