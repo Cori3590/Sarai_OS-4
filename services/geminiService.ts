@@ -247,7 +247,7 @@ const handleApiError = (e: any) => {
 
 export const generateWaifuAvatar = async (profile: WaifuProfile, referenceImage?: string): Promise<string | null> => {
     const ai = getAI();
-    let model = getModelConfig('waifu_model_image', 'gemini-1.5-pro');
+    let model = getModelConfig('waifu_model_image', 'gemini-3.1-pro');
     
     const prompt = `Generate a cinematic, atmospheric portrait of a character named ${profile.name}. 
     Appearance: ${profile.appearance}. 
@@ -283,7 +283,7 @@ export const chatWithWaifu = async (
     gameContext: string
 ): Promise<string> => {
     const ai = getAI();
-    const model = getModelConfig('waifu_model_chat', 'gemini-1.5-pro');
+    const model = getModelConfig('waifu_model_chat', 'gemini-3.1-pro');
     
     // Construct System Instruction
     let sys = ANYA_CORE_PROTOCOL;
@@ -413,7 +413,7 @@ export const generateSpeech = async (text: string): Promise<string | null> => {
     try {
         // API Sourced Audio - using official Gemini TTS model
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-tts",
+            model: "gemini-3.1-flash-tts-preview",
             contents: [{ parts: [{ text: cleanText }] }],
             config: {
                 responseModalities: [Modality.AUDIO],
@@ -451,7 +451,7 @@ export const updateChronicle = async (lastUserMsg: string, lastAiMsg: string): P
     
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-1.5-flash",
+            model: "gemini-3.1-flash",
             contents: prompt
         });
         const txt = response.text?.trim();
@@ -480,7 +480,7 @@ export const summarizeChatHistory = async (messages: Message[]): Promise<string 
     
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-1.5-flash",
+            model: "gemini-3.1-flash",
             contents: prompt
         });
         const txt = response.text?.trim();
@@ -493,7 +493,7 @@ export const summarizeChatHistory = async (messages: Message[]): Promise<string 
 };
 
 // HARDCODED CONSTANT to prevent RPG mode using Pro tier
-const GAME_MODEL = "gemini-1.5-pro";
+const GAME_MODEL = "gemini-3.1-pro";
 
 export const generateAdventureTurn = async (
     historyContext: string,
@@ -595,7 +595,7 @@ export const generateAdventureTurn = async (
 
 export const generateSceneImage = async (description: string, isCombat: boolean): Promise<string | null> => {
     const ai = getAI();
-    let model = getModelConfig('waifu_model_image', 'gemini-1.5-pro');
+    let model = getModelConfig('waifu_model_image', 'gemini-3.1-pro');
     
     const prompt = `Cyberpunk wasteland scene, atmospheric, cinematic, high fidelity. ${isCombat ? "Action scene, combat, dynamic angles." : "Exploration, atmospheric, quiet."} Scene description: ${description}`;
 

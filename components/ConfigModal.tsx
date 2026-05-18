@@ -14,8 +14,8 @@ export const ConfigModal: React.FC<Props> = ({ profile, onSave, onClose, onReset
     const [referenceImage, setReferenceImage] = React.useState<string | null>(null);
     const [isGenerating, setIsGenerating] = React.useState(false);
     
-    const [chatModel, setChatModel] = React.useState(localStorage.getItem('waifu_model_chat') || 'gemini-1.5-pro');
-    const [imageModel, setImageModel] = React.useState(localStorage.getItem('waifu_model_image') || 'gemini-2.5-flash-image');
+    const [chatModel, setChatModel] = React.useState(localStorage.getItem('waifu_model_chat') || 'gemini-3.1-pro');
+    const [imageModel, setImageModel] = React.useState(localStorage.getItem('waifu_model_image') || 'gemini-3.1-pro');
     const [voiceModel, setVoiceModel] = React.useState(localStorage.getItem('waifu_voice') || 'Kore');
     const [customApiKey, setCustomApiKey] = React.useState(localStorage.getItem('custom_gemini_api_key') || '');
 
@@ -155,17 +155,16 @@ export const ConfigModal: React.FC<Props> = ({ profile, onSave, onClose, onReset
                             <div>
                                 <label className="block text-[10px] text-cyan-600 mb-1">CHAT MODEL (Brain)</label>
                                 <select value={chatModel} onChange={(e) => setChatModel(e.target.value)} className="w-full bg-black border border-cyan-700 text-cyan-400 p-2 text-base">
-                                    <option value="gemini-2.0-flash-exp">GEMINI 2.0 FLASH (Newest)</option>
-                                    <option value="gemini-1.5-pro">GEMINI 1.5 PRO (Advanced)</option>
-                                    <option value="gemini-1.5-flash">GEMINI 1.5 FLASH (Fast)</option>
+                                    <option value="gemini-3.1-pro">GEMINI 3.1 PRO (Most Advanced)</option>
+                                    <option value="gemini-3.1-flash">GEMINI 3.1 FLASH (Very Fast)</option>
+                                    <option value="gemini-3.1-flash-lite">GEMINI 3.1 FLASH LITE (Fastest)</option>
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-[10px] text-cyan-600 mb-1">IMAGE MODEL (Eyes)</label>
                                 <select value={imageModel} onChange={(e) => setImageModel(e.target.value)} className="w-full bg-black border border-cyan-700 text-cyan-400 p-2 text-base">
-                                    <option value="gemini-2.0-flash-exp">GEMINI 2.0 FLASH (AI Vision)</option>
-                                    <option value="gemini-1.5-pro">GEMINI 1.5 PRO (High Fidelity)</option>
-                                    <option value="gemini-1.5-flash">GEMINI 1.5 FLASH (Fast)</option>
+                                    <option value="gemini-3.1-pro">GEMINI 3.1 PRO (Ultra Realism)</option>
+                                    <option value="gemini-3.1-flash">GEMINI 3.1 FLASH (High Speed)</option>
                                 </select>
                             </div>
                             <div>

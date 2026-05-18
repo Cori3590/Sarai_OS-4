@@ -24,11 +24,13 @@ async function startServer() {
             return res.status(401).json({ error: "No API key configured." });
         }
         
-        if (model === 'gemini-2.0-flash-exp') model = 'gemini-2.0-flash-exp';
-        if (model === 'gemini-1.5-pro') model = 'gemini-1.5-pro';
-        if (model === 'gemini-1.5-flash') model = 'gemini-1.5-flash';
-        if (model === 'gemini-2.5-pro') model = 'gemini-1.5-pro';
-        if (model === 'gemini-2.5-flash') model = 'gemini-1.5-flash';
+        if (model === 'gemini-3.1-pro') model = 'gemini-3.1-pro';
+        if (model === 'gemini-3.0-flash') model = 'gemini-3.0-flash';
+        if (model === 'gemini-3.1-flash-lite') model = 'gemini-3.1-flash-lite';
+        
+        // Ensure we don't accidentally fallback to 1.5
+        if (model === 'gemini-1.5-pro') model = 'gemini-3.1-pro';
+        if (model === 'gemini-1.5-flash') model = 'gemini-3.0-flash';
 
         const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateContent({
@@ -57,11 +59,9 @@ async function startServer() {
             return res.status(401).json({ error: "No API key configured." });
         }
         
-        // Gemini doesn't directly generate images in standard generateImages call yet. 
-        // We map Gemini choices to the most compatible Imagen model internally.
-        // If the user selects a Gemini model for images, they expect Gemini branding.
-        let targetModel = 'imagen-3.0-generate-001';
-        if (model && model.includes('flash')) targetModel = 'imagen-3.0-fast-generate-001';
+        // Gemini 3.x utilizes Imagen 4 architecture for image generation
+        let targetModel = 'imagen-4.0-generate-001';
+        if (model && model.includes('flash')) targetModel = 'imagen-4.0-generate-001'; // Defaulting to high quality Imagen 4
         
         const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateImages({
